@@ -17,7 +17,6 @@
         v-layout(align-center justify-center)
             v-btn.primary(@click="change") START!!!!
     .load(v-else)
-
 </template>
 
 <script lang='ts'>
@@ -35,7 +34,7 @@ export default class HelloWorld extends Vue {
         if (this.$store.state.changeKaisu === 0) {
             this.overlay = true;
             for (this.time = 0; this.time < 100; this.time += 1) {
-                await aswait(40);
+                await aswait(30);
             }
             this.overlay = false;
         } else {
@@ -44,12 +43,14 @@ export default class HelloWorld extends Vue {
         this.$store.state.changeKaisu = 1;
         const Obniz = require('obniz');
         const obniz = new Obniz('2793-7341');
+        console.log(obniz.connectionState);
         console.log(obniz);
         obniz.onconnect = async () => {
             const uart = obniz.getFreeUart();
             uart.start({tx: 0, rx: 1, gnd: 2 });
 
             uart.send('Hello');
+            console.log('in');
 
             while ( 1 ) {
                 if (uart.isDataExists()) {
