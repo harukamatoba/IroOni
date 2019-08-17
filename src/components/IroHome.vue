@@ -2,6 +2,10 @@
 v-layout#IroHome(fill-height column)
     .main-pane
         v-breadcrumbs.py-0( :items="items" divider=">")
+        v-layout(justify-center)
+            v-card(:color="roleColor[myrole]")
+                v-layout(row wrap)
+                    v-card-text.ma-2.title 貴方は {{ roleString[myrole] }} !!
         v-card.grey.lighten-2.ma-3(min-width='70vw' min-height='40vh')
             v-layout.primary.mx-0(row span)
                 v-card-text.ml-5.pr-0.white--text.text-center.title 色ゲージ
@@ -47,6 +51,9 @@ export default class IroHome extends Vue {
         size: 200,
         color: 'primary',
     };
+    protected roleColor = [ 'red', 'blue' ];
+    protected roleString = [ '鬼', '逃走者' ];
+    protected myrole: number|null = null;
     protected items = [
         { text: 'HOME', disabled: false, to: '/' },
         { text: 'IRO', disabled: true, herf: 'IroHome' },
@@ -55,6 +62,9 @@ export default class IroHome extends Vue {
         protected colorChenge() {
             this.circul.color = this.colors[Math.floor((this.circul.value) / 5) ];
         }
+    protected beforeMount() {
+        this.myrole = 0;
+    }
 
 
 
