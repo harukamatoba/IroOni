@@ -2,11 +2,11 @@
 v-layout#IroHome(fill-height column)
     .main-pane
         v-breadcrumbs.py-0( :items="items" divider=">")
-        v-layout(justify-center)
+        v-layout.mt-1(justify-center)
             v-card(:color="roleColor[myrole]")
                 v-layout(row wrap)
-                    v-card-text.ma-2.title 貴方は {{ roleString[myrole] }} !!
-        v-card.grey.lighten-2.ma-3(min-width='70vw' min-height='40vh')
+                    v-card-text.ma-2.my-0.title 貴方は {{ roleString[myrole] }} !!
+        v-card.grey.lighten-2.ma-3.pb-3(min-width='70vw' min-height='40vh')
             v-layout.primary.mx-0(row span)
                 v-card-text.ml-5.pr-0.white--text.text-center.title 色ゲージ
                 v-spacer
@@ -28,28 +28,44 @@ v-layout#IroHome(fill-height column)
                     :rotate="-90" :width="circul.width"
                     :color="circul.color" )
                     span.title {{ circul.value }}
-            v-slider.align-center(v-model="circul.value"  max=100 min= 0)
+            //- v-slider.align-center(v-model="circul.value"  max=100 min= 0)
+        v-dialog(v-model="dialog")
+            v-card.primary-lighten-3
+                v-card-title coloni とは?
+                v-divider
+                .text.ma-1
+                    p 今までの鬼ごっことは一味違う！
+                    li 鬼は逃走者をタッチするとその相手から色を奪えます。
+                    li 回復スポットで色は回復します。
+                    li ゲージ内の色が無くなったら負け!
+                v-divider
+                v-layout(wrap row)
+                    v-spacer
+                    v-btn.mr-5.primary(@click='dialog = false') OK
 
 </template>
 
 <script lang='ts'>
 import { Component, Vue, Watch } from 'vue-property-decorator';
+import { aswait } from '@/utils/AsyncTimeout';
 
 @Component
 export default class IroHome extends Vue {
-    protected colors = ['black', 'red', 'deep-orange', 'orange darken-3', 'orange',
-        'amber daken-2', 'amber', 'yellow darken-2',
-        'yellow', 'lime accent-2', 'lime', 'lime accent-4',
-        'light-green', 'green', 'teal', 'cyan', 'light-blue', 'blue', 'blue accent-3', 'indigo accent-3', 'indigo'];
+    protected dialog = true;
+    protected window = 0;
+    protected colors = ['red', 'deep-orange', 'orange',
+        'amber',
+        'yellow', 'lime',
+        'light-green', 'green',  'cyan', 'light-blue', 'blue'];
     protected question = false;
     protected hintText = ' 色ゲージには自分に残っている"いろ"がどれくらいなのか表示されています。'
                         + '  その"いろ"が0になったら貴方の負けです。相手にタッチされることで減っていきます。'
                         + '逆に相手をタッチしたり、回復スポットにタッチするとゲージが増えます。';
     protected circul = {
-        value: 20,
+        value: 0,
         width: 30,
         size: 200,
-        color: 'primary',
+        color: 'red',
     };
     protected roleColor = [ 'red', 'blue' ];
     protected roleString = [ '鬼', '逃走者' ];
@@ -60,10 +76,32 @@ export default class IroHome extends Vue {
     ];
     @Watch('circul.value')
         protected colorChenge() {
-            this.circul.color = this.colors[Math.floor((this.circul.value) / 5) ];
+            this.circul.color = this.colors[Math.floor((this.circul.value) / 10) ];
         }
     protected beforeMount() {
         this.myrole = 0;
+        const Obniz = require('obniz');
+        const obniz = new Obniz('2793-7341');
+        console.log(obniz.connectionState);
+        obniz.onconnect = async () => {
+            const uart = obniz.getFreeUart();
+            uart.start({tx: 0, rx: 1, gnd: 2 });
+
+            uart.send('Hello');
+
+            while ( 1 ) {
+                if (uart.isDataExists()) {
+                const res = (uart.readText());
+                if('0' <= res && '9' >= res) {
+                    this.circul.value = (Number(res)) * 10;
+                    console.log(res);
+                }
+                await aswait(10);
+            }
+                await obniz.wait(10);
+            }
+        };
+
     }
 
 

@@ -4,7 +4,7 @@ v-app#app
     v-system-bar
     v-app-bar(app color='primary' dark height='54px')
         v-app-bar-nav-icon.hidden-sm-and-up.nav-icon(@click.stop='drawer = !drawer')
-        v-toolbar-title {{ appName }}
+        v-toolbar-title coloni
         v-spacer
 
         v-menu.hidden-xs-only
